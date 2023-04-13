@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "man-city-analytics"
+name = "CITY-DS"
 version = "0.1.0"
 description = ""
 authors = ["liammoore44 <liammoore4441@gmail.com>"]
@@ -10,6 +10,11 @@ packages = [{include = "man_city_analytics"}]
 python = "^3.9"
 pandas = "^1.5.3"
 socceraction = "^1.4.0"
+flake8 = "^6.0.0"
+kloppy = "^3.9.0"
+moviepy = "^1.0.3"
+matplotlib = "^3.7.1"
+matplotsoccer = "^0.0.8"
 
 
 [tool.poetry.group.dev.dependencies]
