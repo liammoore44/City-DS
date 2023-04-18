@@ -100,10 +100,10 @@ def plot_pitch( figax=None,field_dimen = (106.0,68.0), field_color ='green', lin
         ax.plot(s*half_pitch_length-s*x,y,lc,linewidth=linewidth)
         
     # remove axis labels and ticks
-    ax.set_xticklabels([])
-    ax.set_yticklabels([])
-    ax.set_xticks([])
-    ax.set_yticks([])
+    # ax.set_xticklabels([])
+    # ax.set_yticklabels([])
+    # ax.set_xticks([])
+    # ax.set_yticks([])
     # set axis limits
     xmax = field_dimen[0]/2. + border_dimen[0]
     ymax = field_dimen[1]/2. + border_dimen[1]
@@ -156,7 +156,7 @@ def plot_frame( hometeam, awayteam, figax=None, team_colors=('r','b'), field_dim
         if annotate:
             [ ax.text( team[x]+0.5, team[y]+0.5, x.split('_')[1], fontsize=10, color=color  ) for x,y in zip(x_columns,y_columns) if not ( np.isnan(team[x]) or np.isnan(team[y]) ) ] 
     # plot ball
-    ax.plot( hometeam['ball_x'], hometeam['ball_y'], 'ko', markersize=6, alpha=1.0, linewidth=0)
+    ax.plot( hometeam['ball_x'], hometeam['ball_y'], 'ko', color="yellow", markersize=6, alpha=1.0, linewidth=0)
     return fig,ax
    
 
@@ -287,22 +287,29 @@ def plot_pitch_control_for_frame(frame, tracking_home, tracking_away, attacking_
     Returns
     -----------
        fig,ax : figure and aixs objects (so that other data can be plotted onto the pitch)
-    """    
+    """
+
     # plot frame and event
-    fig,ax = plot_pitch(field_color='white', field_dimen = field_dimen)
-    plot_frame( tracking_home.loc[frame], tracking_away.loc[frame], figax=(fig,ax), PlayerAlpha=alpha, include_player_velocities=include_player_velocities, annotate=annotate )
+    fig, ax = plot_pitch(field_color='white', field_dimen=field_dimen)
+    plot_frame(tracking_home.loc[frame], tracking_away.loc[frame], figax=(fig, ax), PlayerAlpha=alpha,
+               include_player_velocities=include_player_velocities, annotate=annotate)
     
-    #generate pitch control
-    PPCF, xgrid, ygrid=pc.generate_pitch_control_for_frame(frame, tracking_home, tracking_away,attacking_team, params, field_dimen = field_dimen, n_grid_cells_x = n_grid_cells_x)
-    
+    # generate pitch control
+    PPCF, xgrid, ygrid = pc.generate_pitch_control_for_frame(frame, tracking_home, tracking_away, attacking_team, params,
+                                                             field_dimen=field_dimen, n_grid_cells_x=n_grid_cells_x)
+
     # plot pitch control surface
-    if attacking_team=='Home':
+    if attacking_team == 'Home':
         cmap = 'bwr'
     else:
         cmap = 'bwr_r'
-        
-    ax.imshow(np.flipud(PPCF), extent=(np.amin(xgrid), np.amax(xgrid), np.amin(ygrid), np.amax(ygrid)),interpolation='hanning',vmin=0.0,vmax=1.0,cmap=cmap,alpha=0.5)
-    return fig,ax
+
+    im = ax.imshow(np.flipud(PPCF), extent=(np.amin(xgrid), np.amax(xgrid), np.amin(ygrid), np.amax(ygrid)), interpolation='hanning',
+                   vmin=0.0, vmax=1.0, cmap=cmap, alpha=0.5)
+    cbar = fig.colorbar(im)
+    cbar.set_label('Pitch Control')
+    return fig, ax
+
 
 def plot_pitch_control_for_event(event_id, events, tracking_home, tracking_away, params, alpha = 0.7, include_player_velocities=True, annotate=True, field_dimen = (106.,68.,), n_grid_cells_x = 50):
     """ generate_pitch_control_for_event
@@ -373,21 +380,24 @@ def plot_transition_proba_for_frame(frame, tracking_home, tracking_away, attacki
        fig,ax : figure and aixs objects (so that other data can be plotted onto the pitch)
     """    
     # plot frame and event
-    fig,ax = plot_pitch(field_color='white', field_dimen = field_dimen)
-    plot_frame( tracking_home.loc[frame], tracking_away.loc[frame], figax=(fig,ax), PlayerAlpha=alpha, include_player_velocities=include_player_velocities, annotate=annotate )
-    
-    #generate pitch control
-    PPCF, xgrid, ygrid, T =  pc.generate_transition_probability_for_frame(frame, tracking_home, tracking_away, attacking_team, params, field_dimen = field_dimen, n_grid_cells_x = n_grid_cells_x)
-    
+    fig, ax = plot_pitch(field_color='white', field_dimen=field_dimen)
+    plot_frame(tracking_home.loc[frame], tracking_away.loc[frame], figax=(fig, ax), PlayerAlpha=alpha,
+               include_player_velocities=include_player_velocities, annotate=annotate)
+
+    # generate pitch control
+    PPCF, xgrid, ygrid, T = pc.generate_transition_probability_for_frame(frame, tracking_home, tracking_away, attacking_team, params,
+                                                                          field_dimen=field_dimen, n_grid_cells_x=n_grid_cells_x)
+
     # plot pitch control surface
-    if attacking_team=='Home':
+    if attacking_team == 'Home':
         cmap = 'Reds'
     else:
         cmap = 'Blues'
 
-    ax.imshow(np.flipud(T), extent=(np.amin(xgrid), np.amax(xgrid), np.amin(ygrid), np.amax(ygrid)),interpolation='hanning',vmin=0.0,cmap=cmap)
-    
-    return fig,ax
+    im = ax.imshow(np.flipud(T), extent=(np.amin(xgrid), np.amax(xgrid), np.amin(ygrid), np.amax(ygrid)),interpolation='hanning',vmin=0.0,cmap=cmap)
+    cbar = fig.colorbar(im)
+    cbar.set_label('Transitional probability')
+    return fig, ax
 
 
 def generate_relevant_pitch_for_frame(frame, tracking_home, tracking_away, attacking_team, params, field_dimen = (106.,68.,), n_grid_cells_x = 50):
@@ -421,9 +431,9 @@ def generate_relevant_pitch_for_frame(frame, tracking_home, tracking_away, attac
 
 def plot_relevant_pitch_for_frame(frame, tracking_home, tracking_away, attacking_team, params, alpha = 0.7, include_player_velocities=True, annotate=True, field_dimen = (106.,68.,), n_grid_cells_x = 50):
     """ plot_relevant_pitch_for_frame(frame, tracking_home, tracking_away, events, params ,PPCF, xgrid, ygrid )
-    
+
     Plots the relevant pitch surface at the instant of the frame. Player and ball positions are overlaid.
-    
+
     Parameters
     -----------
         frame: the instant at which the pitch control surface should be calculated
@@ -436,25 +446,30 @@ def plot_relevant_pitch_for_frame(frame, tracking_home, tracking_away, attacking
         include_player_velocities: Boolean variable that determines whether player velocities are also plotted (as quivers). Default is False
         annotate: Boolean variable that determines with player jersey numbers are added to the plot (default is False)
         field_dimen: tuple containing the length and width of the pitch in meters. Default is (106,68)
-        
+
     Returns
     -----------
        fig,ax : figure and aixs objects (so that other data can be plotted onto the pitch)
     """    
     # plot frame and event
-    fig,ax = plot_pitch(field_color='white', field_dimen = field_dimen)
-    plot_frame( tracking_home.loc[frame], tracking_away.loc[frame], figax=(fig,ax), PlayerAlpha=alpha, include_player_velocities=include_player_velocities, annotate=annotate )
-    
-    #generate pitch control
-    rel_PPCF, xgrid, ygrid =  generate_relevant_pitch_for_frame(frame, tracking_home, tracking_away, attacking_team, params, field_dimen = field_dimen, n_grid_cells_x = n_grid_cells_x)
-    
-    #find attacking team
-    
+    fig, ax = plot_pitch(field_color='white', field_dimen=field_dimen)
+    plot_frame(tracking_home.loc[frame], tracking_away.loc[frame], figax=(fig, ax), PlayerAlpha=alpha,
+               include_player_velocities=include_player_velocities, annotate=annotate)
+
+    # generate pitch control
+    rel_PPCF, xgrid, ygrid = generate_relevant_pitch_for_frame(frame, tracking_home, tracking_away, attacking_team, params,
+                                                               field_dimen=field_dimen, n_grid_cells_x=n_grid_cells_x)
+
+    # find attacking team
+
     # plot relevant pitch control surface
-    if attacking_team=='Home':
+    if attacking_team == 'Home':
         cmap = 'Reds'
     else:
         cmap = 'Blues'
-    ax.imshow(np.flipud(rel_PPCF), extent=(np.amin(xgrid), np.amax(xgrid), np.amin(ygrid), np.amax(ygrid)),interpolation='hanning',vmin=0.0,cmap=cmap,alpha=1)
-    
-    return fig,ax
+    im = ax.imshow(np.flipud(rel_PPCF), extent=(np.amin(xgrid), np.amax(xgrid), np.amin(ygrid), np.amax(ygrid)), interpolation='hanning',
+                   vmin=0.0, cmap=cmap, alpha=1)
+    # Add colorbar
+    cbar = fig.colorbar(im)
+    cbar.set_label('Relavant pitch control probability')
+    return fig, ax
