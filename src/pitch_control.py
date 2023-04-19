@@ -15,6 +15,8 @@ import numpy as np
 from scipy.optimize import fsolve
 from scipy.stats import multivariate_normal
 
+import socceraction.xthreat as xthreat
+# Load the xT model in
 
 class player(object):
 
@@ -423,6 +425,41 @@ def calculate_transition_probability_at_target(target_position, ball_start_pos, 
     
     return(T_proba)
 
+
+def generate_expected_threat_surface(attacking_team, tracking_home, frame, field_dimen=(106., 68.), n_grid_cells_x=100):
+
+    url_grid = "https://karun.in/blog/data/open_xt_12x8_v1.json"
+    xT_model = xthreat.load_model(url_grid)
+    # break the pitch down into a grid
+    n_grid_cells_y = int(n_grid_cells_x*field_dimen[1]/field_dimen[0])
+    interp = xT_model.interpolator()
+    xgrid_xt = np.linspace(0, 105, n_grid_cells_x)
+    ygrid_xt = np.linspace(0, 68, n_grid_cells_y)
+    n_grid_cells_y = int(50*field_dimen[1]/field_dimen[0])
+    xgrid = np.linspace( -field_dimen[0]/2., field_dimen[0]/2., 50)
+    ygrid = np.linspace( -field_dimen[1]/2., field_dimen[1]/2., n_grid_cells_y )
+    assert attacking_team == 'Home' or attacking_team == 'Away', 'attacking team should be Away or Home'
+        
+    where_home_attacks = where_home_team_attacks(tracking_home)
+    period = tracking_home.loc[frame]['Period']
+    
+    if attacking_team == 'Home':
+        if period == 1:
+            where_attack = where_home_attacks
+        else:
+            where_attack =- where_home_attacks
+    else:
+        if period == 1:
+            where_attack =- where_home_attacks
+        else:
+            where_attack = where_home_attacks
+    # initialise expected threat
+    xT = interp(xgrid_xt, ygrid_xt)
+    if (where_attack == -1):
+        xT = xT[:, ::-1]
+    return (xT, xgrid, ygrid)
+
+
 def generate_transition_probability_for_frame(frame, tracking_home, tracking_away, attacking_team, params, field_dimen = (106.,68.,), n_grid_cells_x = 50):
     """ generate_transition_probability_for_frame
     
@@ -494,6 +531,5 @@ def generate_transition_probability_for_frame(frame, tracking_home, tracking_awa
     
     #normalize T to unity
     T=T/np.sum(T)
-    
-    return PPCFa,xgrid,ygrid,T
 
+    return PPCFa,xgrid,ygrid,T
