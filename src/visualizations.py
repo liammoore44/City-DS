@@ -165,6 +165,22 @@ def plot_frame(hometeam, awayteam, figax=None, team_colors=('r', 'b'), field_dim
     return fig, ax
 
 
+def plot_frame_players(frame, tracking_home, tracking_away, attacking_team, grid, alpha=0.7, include_player_velocities=True,
+                       annotate=True, field_dimen=(106., 68.,), n_grid_cells_x=50):
+
+    fig, ax = plot_pitch(field_color='white', field_dimen=field_dimen)
+    plot_frame(tracking_home.loc[frame], tracking_away.loc[frame], figax=(fig, ax), PlayerAlpha=alpha,
+               include_player_velocities=include_player_velocities, annotate=annotate)
+    
+    xgrid = np.linspace(-field_dimen[0]/2., field_dimen[0]/2., 50)
+    n_grid_cells_y = int(50*field_dimen[1]/field_dimen[0])
+    ygrid = np.linspace(-field_dimen[1]/2., field_dimen[1]/2., n_grid_cells_y)
+    im = ax.imshow(np.flipud(grid), extent=(np.amin(xgrid), np.amax(xgrid), np.amin(ygrid), np.amax(ygrid)),
+                   interpolation='hanning', vmin=0.0, vmax=np.max(grid), cmap="Spectral_r")
+    # Add colorbar
+    cbar = fig.colorbar(im)
+    return fig, ax
+
 def plot_pitch_control_for_frame(frame, tracking_home, tracking_away, attacking_team, params, alpha=0.7, include_player_velocities=True, 
                                  annotate=True, field_dimen=(106., 68.,), n_grid_cells_x=50):
     """ plot_pitch_control_for_frame(frame, tracking_home, tracking_away, params ,PPCF, xgrid, ygrid )

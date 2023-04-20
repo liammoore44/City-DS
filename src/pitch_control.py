@@ -247,8 +247,8 @@ def calculate_pitch_control_at_target(target_position, attacking_players, defend
     offside_players=find_offside_players(attacking_players, defending_players, where_attack, ball_start_pos)
     
     # first get arrival time of 'nearest' attacking player (nearest also dependent on current velocity) (if player isn't offside)
-    tau_min_att = np.nanmin( [p.improved_time_to_reach_location(target_position) for p in attacking_players if p.playername not in offside_players] )
-    tau_min_def = np.nanmin( [p.improved_time_to_reach_location(target_position) for p in defending_players] )
+    tau_min_att = np.nanmin( [p.simple_time_to_reach_location(target_position) for p in attacking_players if p.playername not in offside_players] )
+    tau_min_def = np.nanmin( [p.simple_time_to_reach_location(target_position) for p in defending_players] )
     
     # check whether we actually need to solve equation 
     if tau_min_att-max(ball_travel_time,tau_min_def) >= params['time_to_control_def']:
