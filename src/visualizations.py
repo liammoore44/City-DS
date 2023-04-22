@@ -161,7 +161,7 @@ def plot_frame(hometeam, awayteam, figax=None, team_colors=('r', 'b'), field_dim
             [ax.text(team[x]+0.5, team[y]+0.5, x.split('_')[1], fontsize=10, color=color) for x, y in zip(x_columns, y_columns) if not
                 (np.isnan(team[x]) or np.isnan(team[y]))] 
     # plot ball
-    ax.plot(hometeam['ball_x'], hometeam['ball_y'], 'ko', color="yellow", markersize=6, alpha=1.0, linewidth=0)
+    ax.plot(hometeam['ball_x'], hometeam['ball_y'], 'ko', color="yellow", markersize=6, alpha=1.0, linewidth=1)
     return fig, ax
 
 
@@ -174,7 +174,7 @@ def plot_frame_players(frame, tracking_home, tracking_away, attacking_team, grid
         fig, ax = plot_pitch(field_color='white', field_dimen=field_dimen)
 
     # plot pitch control surface
-    if attacking_team == 'home':
+    if attacking_team == 'Home':
         cmap = 'Reds'
     else:
         cmap = 'Blues'
@@ -405,7 +405,7 @@ def plot_scoring_opp_for_frame(frame, tracking_home, tracking_away, attacking_te
                                                                                 field_dimen=field_dimen, n_grid_cells_x=n_grid_cells_x)
 
     # plot pitch control surface
-    if attacking_team == 'Home':
+    if attacking_team == 'home':
         cmap = 'Reds'
     else:
         cmap = 'Blues'
