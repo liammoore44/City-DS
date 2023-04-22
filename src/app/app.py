@@ -8,10 +8,9 @@ from kneed import KneeLocator
 from sklearn.cluster import KMeans
 from mplsoccer import Pitch
 
-sys.path.append('../..')
-import src.visualizations as viz
-from src.second_spectrum_utils import get_home_away_tracking
-import src.player_velocities as vel
+import visualizations as viz
+from second_spectrum_utils import get_home_away_tracking
+import player_velocities as vel
 
 st.set_page_config(layout='wide')
 
