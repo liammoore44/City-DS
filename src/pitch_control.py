@@ -392,11 +392,11 @@ def generate_pitch_control_for_frame(frame, tracking_home, tracking_away,
         for j in range(len(xgrid)):
             target_position = np.array([xgrid[j], ygrid[i]])
             PPCFa[i, j], PPCFd[i, j] = calculate_pitch_control_at_target(target_position,
-                                                                      attacking_players,
-                                                                      defending_players,
-                                                                      ball_start_pos,
-                                                                      where_attack,
-                                                                      params)
+                                                                        attacking_players,
+                                                                        defending_players,
+                                                                        ball_start_pos,
+                                                                        where_attack,
+                                                                        params)
 
     # check probabilitiy sums within convergence
     checksum = np.sum(PPCFa + PPCFd) / float(n_grid_cells_y*n_grid_cells_x)
