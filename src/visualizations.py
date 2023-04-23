@@ -10,6 +10,7 @@ Data can be found at: https://github.com/metrica-sports/sample-data
 import matplotlib.pyplot as plt
 import numpy as np
 import src.pitch_control as pc
+from matplotlib.animation import FuncAnimation
 
 
 def swap_axes(line2d, xdata, ydata):
@@ -458,3 +459,16 @@ def plot_scoring_opp_for_frame(frame, tracking_home, tracking_away, attacking_te
     print('off ball expected threat: '+str(round(np.sum(off_scoring)*100, 1)) + "%")
     
     return (fig, ax)
+
+
+def animate(i, fig, ax, df_, tracking_home, tracking_away):
+    ax.clear()
+    # Get the point from the points list at index i
+    row = df_.iloc[i]
+    # Plot that point using the x and y coordinates
+    plot_frame_players(row.frame, tracking_home, tracking_away, row.attacking_team, row.conrol_matrix, fig=fig, ax=ax)
+    return ax
+
+def animate_frames(fig, ax, df_, tracking_home, tracking_away):
+    FuncAnimation(fig, animate, frames=len(df_),
+                interval=500, repeat=False, fargs=(fig, ax, df_, tracking_home, tracking_away))
