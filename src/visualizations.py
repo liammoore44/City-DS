@@ -10,6 +10,7 @@ Data can be found at: https://github.com/metrica-sports/sample-data
 import matplotlib.pyplot as plt
 import numpy as np
 import src.pitch_control as pc
+from matplotlib.animation import FuncAnimation
 
 
 def swap_axes(line2d, xdata, ydata):
@@ -164,14 +165,24 @@ def plot_frame(hometeam, awayteam, figax=None, team_colors=('r', 'b'), field_dim
             [ax.text(team[x]+0.5, team[y]+0.5, x.split('_')[1], fontsize=10, color=color) for x, y in zip(x_columns, y_columns) if not
                 (np.isnan(team[x]) or np.isnan(team[y]))] 
     # plot ball
-    ax.plot(hometeam['ball_x'], hometeam['ball_y'], 'ko', color="yellow", markersize=6, alpha=1.0, linewidth=0)
+    ax.plot(hometeam['ball_x'], hometeam['ball_y'], 'ko', color="yellow", markersize=6, alpha=1.0, linewidth=1)
     return fig, ax
 
 
 def plot_frame_players(frame, tracking_home, tracking_away, attacking_team, grid, alpha=0.7, include_player_velocities=True,
-                       annotate=True, field_dimen=(106., 68.,), n_grid_cells_x=50):
+                       annotate=True, field_dimen=(106., 68.,), n_grid_cells_x=50, fig=None, ax=None):
 
-    fig, ax = plot_pitch(field_color='white', field_dimen=field_dimen)
+    if fig is not None:
+        fig, ax = fig, ax
+    else:
+        fig, ax = plot_pitch(field_color='white', field_dimen=field_dimen)
+
+    # plot pitch control surface
+    if attacking_team == 'Home':
+        cmap = 'Reds'
+    else:
+        cmap = 'Blues'
+
     plot_frame(tracking_home.loc[frame], tracking_away.loc[frame], figax=(fig, ax), PlayerAlpha=alpha,
                include_player_velocities=include_player_velocities, annotate=annotate)
     
@@ -179,9 +190,9 @@ def plot_frame_players(frame, tracking_home, tracking_away, attacking_team, grid
     n_grid_cells_y = int(n_grid_cells_x*field_dimen[1]/field_dimen[0])
     ygrid = np.linspace(-field_dimen[1]/2., field_dimen[1]/2., n_grid_cells_y)
     im = ax.imshow(np.flipud(grid), extent=(np.amin(xgrid), np.amax(xgrid), np.amin(ygrid), np.amax(ygrid)),
-                   interpolation='hanning', vmin=0.0, vmax=np.max(grid), cmap="Spectral_r")
+                   interpolation='hanning', vmin=0.0, vmax=np.max(grid), cmap=cmap)
     # Add colorbar
-    cbar = fig.colorbar(im)
+    # cbar = fig.colorbar(im)
     return fig, ax
 
 def plot_players(frame, tracking_home, tracking_away, alpha=0.7, include_player_velocities=True,
@@ -450,3 +461,16 @@ def plot_scoring_opp_for_frame(frame, tracking_home, tracking_away, attacking_te
     print('off ball expected threat: '+str(round(np.sum(off_scoring)*100, 1)) + "%")
     
     return (fig, ax)
+
+
+def animate(i, fig, ax, df_, tracking_home, tracking_away):
+    ax.clear()
+    # Get the point from the points list at index i
+    row = df_.iloc[i]
+    # Plot that point using the x and y coordinates
+    plot_frame_players(row.frame, tracking_home, tracking_away, row.attacking_team, row.conrol_matrix, fig=fig, ax=ax)
+    return ax
+
+def animate_frames(fig, ax, df_, tracking_home, tracking_away):
+    FuncAnimation(fig, animate, frames=len(df_),
+                interval=500, repeat=False, fargs=(fig, ax, df_, tracking_home, tracking_away))

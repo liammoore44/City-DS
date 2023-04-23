@@ -7,10 +7,13 @@ import matplotlib.pyplot as plt
 from kneed import KneeLocator
 from sklearn.cluster import KMeans
 from mplsoccer import Pitch
+import streamlit.components.v1 as components
 
 import src.visualizations as viz
 from src.second_spectrum_utils import get_home_away_tracking
 import src.player_velocities as vel
+from src.possession_threat import find_obso_swings
+from matplotlib.animation import FuncAnimation
 
 st.set_page_config(layout='wide')
 
@@ -47,28 +50,33 @@ def load_data(match):
     return tracking_home, tracking_away, full_merged
 
 
-st.title('City App')
+st.title('Manchester City In-Play Analysis')
 
-match = st.selectbox("Select Match", ("Man City v Liverpool",
+subcol1, subcol2, newcol1 = st.columns(3)
+with subcol1:
+    match = st.selectbox("Match", ("Man City v Liverpool",
                                       "Man City v Tottenham",
                                       "Man City v Arsenal",
                                       "Man City v Brighton",
                                       "Man City v Leicester"))
-
-tracking_home, tracking_away, full_merged = load_data(match)
-
-col1, col2 = st.columns(2)
-with col1:
+with subcol2:
     team = st.selectbox(
         'Team',
         ('home', 'away'))
-    subcol1, subcol2 = st.columns(2)
-    with subcol1:
-        half = st.radio(
+    
+with newcol1:
+    half = st.radio(
             "Half",
-            (1, 2))
-    with subcol2:
-        placeholder_clusters = st.empty()
+            (1, 2),
+            horizontal=True)
+
+tracking_home, tracking_away, full_merged = load_data(match)
+
+st.subheader('Positional Threat')
+
+col1, col2 = st.columns(2)
+with col1:
+    placeholder_clusters = st.empty()
 
     h1 = full_merged[(full_merged.period_id_x == half) & (full_merged.attacking_team == team)]
     period = st.slider("Threat by time:", min_value=1, max_value=h1.shape[0], value=(0, 10))
@@ -90,7 +98,7 @@ with col1:
 
         with col2:
             grids = df.conrol_matrix.to_list()
-            st.write("Average threat per event in area")
+            st.write("Average Event Threat")
             features = []
             for matrix in grids:
                 features.append(matrix.flatten())
@@ -108,7 +116,7 @@ with col1:
                 clusters = ["All Zones"]
                 for i in range(k):
                     clusters.append(f"Zone {i+1}")
-                cluster = st.radio("Zone", clusters)
+                cluster = st.radio("Zone", clusters, horizontal=True)
 
             kmeans = KMeans(n_clusters=k, random_state=0).fit(X)
             cluster_labels = kmeans.labels_
@@ -141,6 +149,7 @@ with col1:
             passes['y'] = passes.location.apply(lambda x: x[1])
             passes['x_dest'] = passes.pass_end_location.apply(lambda x: x[0])
             passes['y_dest'] = passes.pass_end_location.apply(lambda x: x[1])
+
             min_range = 0.3
             max_range = 1
             passes['normalized_value'] = (passes['obv_total_net'] - passes['obv_total_net'].min()) / \
@@ -150,7 +159,7 @@ with col1:
 
             pitch.arrows(passes.x, passes.y, passes.x_dest, passes.y_dest, color="blue", lw=0.1, width=1, 
                          ax=ax, alpha=passes.normalized_value)
-            st.write("Completed passes during selected time-zone combination")
+            st.write("Completed Passes")
             st.pyplot(fig2)
 
     player_values_df = df[['player_name', 'position_name', 'OBSO', 'obv_total_net']]
@@ -160,3 +169,23 @@ with col1:
     style = grouped_vals.style.background_gradient(cmap='RdYlGn')
 
     st.table(style)
+st.write("#")
+
+st.subheader('High Impact Plays')
+
+sildercol1, slidercol2 = st.columns(2)
+with sildercol1:
+    change_thresh = st.slider("Threat Change (%):", min_value=1, max_value=100, value=30)
+with slidercol2:
+    second_thresh = st.slider("Time:", min_value=1, max_value=20, value=3)
+
+impact_dfs, high_impact_plays = find_obso_swings(full_merged, second_thresh, change_thresh, half, team)
+
+st.write('Key Actions')
+st.dataframe(high_impact_plays[['minute', 'second', 'player_name', 'team_name', 'type_name',  'high_impact', 'OBSO (%)']])
+fig, ax = viz.plot_pitch(field_color='white', field_dimen=(106., 68.,)) 
+ani = FuncAnimation(fig, viz.animate, frames=len(impact_dfs[0]),
+                interval=5, repeat=False, fargs=(fig, ax, impact_dfs[0], tracking_home, tracking_away))
+components.html(ani.to_jshtml(fps=2, default_mode='once'), width=1600, height=1000)
+
+
