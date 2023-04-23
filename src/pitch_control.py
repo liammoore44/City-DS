@@ -158,7 +158,7 @@ def where_home_team_attacks(home_tracking):
         -1 if home team attacks on the left (x<0)
         1 if home team attacks on the right (x>0)
     '''
-    game_start_frame = 1
+    game_start_frame = 0
     home_team_x_cols = [c for c in home_tracking.columns if
                         c.split('_')[-1] == 'x' and c.split('_')[-2] != 'ball']
 

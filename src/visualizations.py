@@ -456,6 +456,8 @@ def plot_scoring_opp_for_frame(frame, tracking_home, tracking_away, attacking_te
                    vmin=0.0, vmax=np.max(off_scoring), cmap=cmap)
     # Add colorbar
     cbar = fig.colorbar(im)
+    cbar.set_label('OBSO')
+
     print('off ball expected threat: '+str(round(np.sum(off_scoring)*100, 1)) + "%")
     
     return (fig, ax)

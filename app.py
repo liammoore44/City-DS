@@ -21,25 +21,25 @@ st.set_page_config(layout='wide')
 @st.cache_data
 def load_data(match):
     if match == "Man City v Liverpool":
-        TRACKING_HOME = "src/ta_ManCity_Liverpool.pkl"
-        TRACKING_AWAY = "src/th_ManCity_Liverpool.pkl"
+        TRACKING_HOME = "src/th_ManCity_Liverpool.pkl"
+        TRACKING_AWAY = "src/ta_ManCity_Liverpool.pkl"
         EVENT_NAME = "src/ManCity_Liverpool.pkl"
     elif match == "Man City v Tottenham":
-        TRACKING_HOME = "src/ta_ManCity_Tottenham.pkl"
-        TRACKING_AWAY = "src/th_ManCity_Tottenham.pkl"
+        TRACKING_HOME = "src/th_ManCity_Tottenham.pkl"
+        TRACKING_AWAY = "src/ta_ManCity_Tottenham.pkl"
         EVENT_NAME = "src/ManCity_Tottenham.pkl"
     elif match == "Man City v Arsenal":
-        TRACKING_HOME = "src/ta_ManCity_Arsenal.pkl"
-        TRACKING_AWAY = "src/th_ManCity_Arsenal.pkl"
+        TRACKING_HOME = "src/th_ManCity_Arsenal.pkl"
+        TRACKING_AWAY = "src/ta_ManCity_Arsenal.pkl"
         EVENT_NAME = "src/ManCity_Arsenal.pkl"
     elif match == "Man City v Brighton":
-        TRACKING_HOME = "src/ta_ManCity_Brighton.pkl"
-        TRACKING_AWAY = "src/th_ManCity_Brighton.pkl"
+        TRACKING_HOME = "src/th_ManCity_Brighton.pkl"
+        TRACKING_AWAY = "src/ta_ManCity_Brighton.pkl"
         EVENT_NAME = "src/ManCity_Brighton.pkl"
     elif match == "Man City v Leicester":
-        TRACKING_HOME = "src/ta_ManCity_Leicester.pkl"
-        TRACKING_AWAY = "src/th_ManCity_Leicester.pkl"
-        EVENT_NAME = "src/ManCity_Leicester.pkl"
+        TRACKING_HOME = "src/th_ManCity_LeicesterCity.pkl"
+        TRACKING_AWAY = "src/ta_ManCity_LeicesterCity.pkl"
+        EVENT_NAME = "src/ManCity_LeicesterCity.pkl"
 
     with open(TRACKING_HOME, 'rb') as f:
         tracking_home = pickle.load(f)
@@ -149,7 +149,16 @@ with col1:
             passes['y'] = passes.location.apply(lambda x: x[1])
             passes['x_dest'] = passes.pass_end_location.apply(lambda x: x[0])
             passes['y_dest'] = passes.pass_end_location.apply(lambda x: x[1])
-            pitch.arrows(passes.x, passes.y, passes.x_dest, passes.y_dest, color="blue", lw=0.1, width=1, ax=ax)
+
+            min_range = 0.3
+            max_range = 1
+            passes['normalized_value'] = (passes['obv_total_net'] - passes['obv_total_net'].min()) / \
+                                         (passes['obv_total_net'].max() - passes['obv_total_net'].min()) * (max_range - min_range) \
+                                         + min_range
+
+
+            pitch.arrows(passes.x, passes.y, passes.x_dest, passes.y_dest, color="blue", lw=0.1, width=1, 
+                         ax=ax, alpha=passes.normalized_value)
             st.write("Completed Passes")
             st.pyplot(fig2)
 
@@ -178,4 +187,5 @@ fig, ax = viz.plot_pitch(field_color='white', field_dimen=(106., 68.,))
 ani = FuncAnimation(fig, viz.animate, frames=len(impact_dfs[0]),
                 interval=5, repeat=False, fargs=(fig, ax, impact_dfs[0], tracking_home, tracking_away))
 components.html(ani.to_jshtml(fps=2, default_mode='once'), width=1600, height=1000)
+
 
