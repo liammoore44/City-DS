@@ -17,7 +17,7 @@ def swap_axes(line2d, xdata, ydata):
     line2d.set_ydata(xdata)
 
 
-def plot_pitch(figax=None, field_dimen=(106.0, 68.0), field_color='green', linewidth=2, markersize=20, dpi=100, half=False):
+def plot_pitch(figax=None, field_dimen=(106.0, 68.0), field_color='green', linewidth=2, markersize=20, dpi=100, half=False, show_direction=False):
     """ plot_pitch
     
     Plots a soccer pitch. All distance units converted to meters.
@@ -34,7 +34,7 @@ def plot_pitch(figax=None, field_dimen=(106.0, 68.0), field_color='green', linew
        fig,ax : figure and aixs objects (so that other data can be plotted onto the pitch)
     """
     if figax is None:
-        fig, ax = plt.subplots(figsize=(12, 8), dpi=dpi)  # create a figure 
+        fig, ax = plt.subplots(figsize=(12, 7), dpi=dpi)  # create a figure 
     else:
         fig, ax = figax
     # decide what color we want the field to be. Default is green, but can also choose white
@@ -51,7 +51,7 @@ def plot_pitch(figax=None, field_dimen=(106.0, 68.0), field_color='green', linew
     half_pitch_length = field_dimen[0]/2.   # length of half pitch
     half_pitch_width = field_dimen[1]/2.  # width of half pitch
 
-    signs = [-1, 1] 
+    signs = [-1, 1]
     # Soccer field dimensions typically defined in yards, so we need to convert to meters
     goal_line_width = 8*meters_per_yard
     box_width = 20*meters_per_yard
@@ -99,7 +99,10 @@ def plot_pitch(figax=None, field_dimen=(106.0, 68.0), field_color='green', linew
         y = np.linspace(-1, 1, 50)*D_length  # D_length is the chord of the circle that defines the D
         x = np.sqrt(D_radius**2-y**2)+D_pos
         ax.plot(s*half_pitch_length-s*x, y, lc, linewidth=linewidth)
-
+    if (show_direction):
+        ax.annotate("Direction of play", xy=(-2, -31), xytext=(-40, -31.5),
+                    arrowprops=dict(facecolor='black', arrowstyle='->'))
+    
     # remove axis labels and ticks
     ax.set_xticklabels([])
     ax.set_yticklabels([])
@@ -191,17 +194,41 @@ def plot_frame_players(frame, tracking_home, tracking_away, attacking_team, grid
     # cbar = fig.colorbar(im)
     return fig, ax
 
-
-def plot_obso_grid(grid, vmax, field_dimen=(106., 68.,), n_grid_cells_x=50):
+def plot_players(frame, tracking_home, tracking_away, alpha=0.7, include_player_velocities=True,
+                       annotate=True, field_dimen=(106., 68.,), n_grid_cells_x=50):
 
     fig, ax = plot_pitch(field_color='white', field_dimen=field_dimen)
+    plot_frame(tracking_home.loc[frame], tracking_away.loc[frame], figax=(fig, ax), PlayerAlpha=alpha,
+               include_player_velocities=include_player_velocities, annotate=annotate)
+    
+    return fig, ax
+
+
+def plot_obso_grid(grid, vmax, tracking_home, period, attacking_team, field_dimen=(106., 68.,), n_grid_cells_x=50, show_direction=False):
+
+    home_attack = pc.where_home_team_attacks(tracking_home)
+
+    fig, ax = plot_pitch(field_color='white', field_dimen=field_dimen, show_direction=show_direction)
     xgrid = np.linspace(-field_dimen[0]/2., field_dimen[0]/2., 50)
     n_grid_cells_y = int(n_grid_cells_x*field_dimen[1]/field_dimen[0])
     ygrid = np.linspace(-field_dimen[1]/2., field_dimen[1]/2., n_grid_cells_y)
+    # normalize to plot left to right
+    if home_attack == -1:
+        if (attacking_team == "home" and period == 1):
+
+            grid = grid[:, ::-1]
+        elif (attacking_team == "away" and period == 2):
+            grid = grid[:, ::-1]
+    else:
+        if (attacking_team == "home" and period == 2):
+
+            grid = grid[:, ::-1]
+        elif (attacking_team == "away" and period == 1):
+            grid = grid[:, ::-1]
     im = ax.imshow(np.flipud(grid), extent=(np.amin(xgrid), np.amax(xgrid), np.amin(ygrid), np.amax(ygrid)),
                    interpolation='hanning', vmin=0.0, vmax=vmax, cmap="Spectral_r")
     # Add colorbar
-    # cbar = fig.colorbar(im)
+    cbar = fig.colorbar(im)
     return fig, ax
 
 
