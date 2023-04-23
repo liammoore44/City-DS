@@ -141,7 +141,15 @@ with col1:
             passes['y'] = passes.location.apply(lambda x: x[1])
             passes['x_dest'] = passes.pass_end_location.apply(lambda x: x[0])
             passes['y_dest'] = passes.pass_end_location.apply(lambda x: x[1])
-            pitch.arrows(passes.x, passes.y, passes.x_dest, passes.y_dest, color="blue", lw=0.1, width=1, ax=ax)
+            min_range = 0.3
+            max_range = 1
+            passes['normalized_value'] = (passes['obv_total_net'] - passes['obv_total_net'].min()) / \
+                                         (passes['obv_total_net'].max() - passes['obv_total_net'].min()) * (max_range - min_range) \
+                                         + min_range
+
+
+            pitch.arrows(passes.x, passes.y, passes.x_dest, passes.y_dest, color="blue", lw=0.1, width=1, 
+                         ax=ax, alpha=passes.normalized_value)
             st.write("Completed passes during selected time-zone combination")
             st.pyplot(fig2)
 
