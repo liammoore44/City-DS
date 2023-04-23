@@ -18,25 +18,25 @@ st.set_page_config(layout='wide')
 @st.cache_data
 def load_data(match):
     if match == "Man City v Liverpool":
-        TRACKING_HOME = "src/ta_ManCity_Liverpool.pkl"
-        TRACKING_AWAY = "src/th_ManCity_Liverpool.pkl"
+        TRACKING_HOME = "src/th_ManCity_Liverpool.pkl"
+        TRACKING_AWAY = "src/ta_ManCity_Liverpool.pkl"
         EVENT_NAME = "src/ManCity_Liverpool.pkl"
     elif match == "Man City v Tottenham":
-        TRACKING_HOME = "src/ta_ManCity_Tottenham.pkl"
-        TRACKING_AWAY = "src/th_ManCity_Tottenham.pkl"
+        TRACKING_HOME = "src/th_ManCity_Tottenham.pkl"
+        TRACKING_AWAY = "src/ta_ManCity_Tottenham.pkl"
         EVENT_NAME = "src/ManCity_Tottenham.pkl"
     elif match == "Man City v Arsenal":
-        TRACKING_HOME = "src/ta_ManCity_Arsenal.pkl"
-        TRACKING_AWAY = "src/th_ManCity_Arsenal.pkl"
+        TRACKING_HOME = "src/th_ManCity_Arsenal.pkl"
+        TRACKING_AWAY = "src/ta_ManCity_Arsenal.pkl"
         EVENT_NAME = "src/ManCity_Arsenal.pkl"
     elif match == "Man City v Brighton":
-        TRACKING_HOME = "src/ta_ManCity_Brighton.pkl"
-        TRACKING_AWAY = "src/th_ManCity_Brighton.pkl"
+        TRACKING_HOME = "src/th_ManCity_Brighton.pkl"
+        TRACKING_AWAY = "src/ta_ManCity_Brighton.pkl"
         EVENT_NAME = "src/ManCity_Brighton.pkl"
     elif match == "Man City v Leicester":
-        TRACKING_HOME = "src/ta_ManCity_Leicester.pkl"
-        TRACKING_AWAY = "src/th_ManCity_Leicester.pkl"
-        EVENT_NAME = "src/ManCity_Leicester.pkl"
+        TRACKING_HOME = "src/th_ManCity_LeicesterCity.pkl"
+        TRACKING_AWAY = "src/ta_ManCity_LeicesterCity.pkl"
+        EVENT_NAME = "src/ManCity_LeicesterCity.pkl"
 
     with open(TRACKING_HOME, 'rb') as f:
         tracking_home = pickle.load(f)
@@ -152,14 +152,3 @@ with col1:
     style = grouped_vals.style.background_gradient(cmap='RdYlGn')
 
     st.table(style)
-    # Add labels to the chart
-
-    # st.write("Total cumultive threat")
-
-    # cum_result = np.zeros(grids[0].shape)
-    # for matrix in grids:
-    #     cum_result += matrix
-    # vmax = np.max(cum_result)
-
-    # fig2, ax = viz.plot_obso_grid(cum_result, vmax)
-    # st.pyplot(fig2)
