@@ -141,27 +141,8 @@ with col1:
             fig1, ax = viz.plot_obso_grid(result, vmax, tracking_home, half, team, show_direction=True)
             st.pyplot(fig1)
 
-            pitch = Pitch()
-            # specifying figure size (width, height)
-            fig2, ax = pitch.draw(figsize=(8, 4))
-            passes = df[(df.type_name == "Pass") & ~(df.pass_outcome_id.isin([9, 75]))]
-            passes['x'] = passes.location.apply(lambda x: x[0])
-            passes['y'] = passes.location.apply(lambda x: x[1])
-            passes['x_dest'] = passes.pass_end_location.apply(lambda x: x[0])
-            passes['y_dest'] = passes.pass_end_location.apply(lambda x: x[1])
-
-            min_range = 0.3
-            max_range = 1
-            passes['normalized_value'] = (passes['obv_total_net'] - passes['obv_total_net'].min()) / \
-                                         (passes['obv_total_net'].max() - passes['obv_total_net'].min()) * (max_range - min_range) \
-                                         + min_range
-
-
-            pitch.arrows(passes.x, passes.y, passes.x_dest, passes.y_dest, color="blue", lw=0.1, width=1, 
-                         ax=ax, alpha=passes.normalized_value)
-            st.write("Completed Passes")
-            st.pyplot(fig2)
-
+secondcol1, secondcol2 = st.columns(2)
+with secondcol1:
     player_values_df = df[['player_name', 'position_name', 'OBSO', 'obv_total_net']]
     grouped_vals = player_values_df.groupby(['player_name', 'position_name']).sum()
     grouped_vals.rename(columns={"OBSO": "Off Ball Scoring Opp", "obv_total_net": "On Ball Value"}, inplace=True)
@@ -169,6 +150,27 @@ with col1:
     style = grouped_vals.style.background_gradient(cmap='RdYlGn')
 
     st.table(style)
+with secondcol2:
+    pitch = Pitch()
+    # specifying figure size (width, height)
+    fig2, ax = pitch.draw(figsize=(8, 4))
+    passes = df[(df.type_name == "Pass") & ~(df.pass_outcome_id.isin([9, 75]))]
+    passes['x'] = passes.location.apply(lambda x: x[0])
+    passes['y'] = passes.location.apply(lambda x: x[1])
+    passes['x_dest'] = passes.pass_end_location.apply(lambda x: x[0])
+    passes['y_dest'] = passes.pass_end_location.apply(lambda x: x[1])
+
+    min_range = 0.3
+    max_range = 1
+    passes['normalized_value'] = (passes['obv_total_net'] - passes['obv_total_net'].min()) / \
+                                    (passes['obv_total_net'].max() - passes['obv_total_net'].min()) * (max_range - min_range) \
+                                    + min_range
+
+
+    pitch.arrows(passes.x, passes.y, passes.x_dest, passes.y_dest, color="blue", lw=0.1, width=1, 
+                    ax=ax, alpha=passes.normalized_value)
+    st.write("Completed Passes")
+    st.pyplot(fig2)
 st.write("#")
 
 st.subheader('High Impact Plays')
