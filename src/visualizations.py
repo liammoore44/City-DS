@@ -405,7 +405,7 @@ def plot_scoring_opp_for_frame(frame, tracking_home, tracking_away, attacking_te
                                                                                 field_dimen=field_dimen, n_grid_cells_x=n_grid_cells_x)
 
     # plot pitch control surface
-    if attacking_team == 'home':
+    if attacking_team == 'Home':
         cmap = 'Reds'
     else:
         cmap = 'Blues'
