@@ -18,7 +18,7 @@ from matplotlib.animation import FuncAnimation
 st.set_page_config(layout='wide')
 
 
-@st.cache_data
+@st.cache_data(max_entries=3)
 def load_data(match):
     if match == "Man City v Liverpool":
         TRACKING_HOME = "src/th_ManCity_Liverpool.pkl"
@@ -79,7 +79,6 @@ with col1:
     placeholder_clusters = st.empty()
 
     h1 = full_merged[(full_merged.period_id_x == half) & (full_merged.attacking_team == team)]
-    period = st.slider("Threat by time:", min_value=1, max_value=h1.shape[0], value=(0, 10))
 
     if (period[1] - period[0] < 6):
         st.error('Please select a minimum range of 6 events', icon="🚨")
@@ -178,16 +177,16 @@ st.subheader('High Impact Plays')
 use_df = full_merged.iloc[period[0]:period[1]-1].copy()
 sildercol1, slidercol2 = st.columns(2)
 with sildercol1:
-    change_thresh = st.slider("OBSO Change (%):", min_value=1, max_value=100, value=30)
+    change_thresh = st.slider("OBSO Change (%):", min_value=1, max_value=100, value=20)
 with slidercol2:
-    second_thresh = st.slider("Time (seconds):", min_value=1, max_value=20, value=5)
+    second_thresh = st.slider("Time (seconds):", min_value=1, max_value=20, value=10)
 
 impact_dfs, high_impact_plays = find_obso_swings(use_df, second_thresh, change_thresh, half, team)
 
 if len(impact_dfs)==0:
         st.error('No phases meet the current criteria.', icon="🚨")
 else:
-    selected_df = impact_dfs[1]
+    selected_df = impact_dfs[0]
     selected_df.attacking_team = np.where(selected_df.attacking_team=='home', 'Home', 'Away')
     phasecol1, phasecol2 = st.columns(2)
     with phasecol1:
