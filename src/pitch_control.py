@@ -1,14 +1,5 @@
 """
-Module for calculating a Pitch Control surface using MetricaSports's tracking & event data.
-Pitch control (at a given location on the field) is the probability that a team will gain 
-possession if the ball is moved to that location on the field. 
-Methdology is described in "Off the ball scoring opportunities" by William Spearman:
-http://www.sloansportsconference.com/wp-content/uploads/2018/02/2002.pdf
-Very inspired by this GitHub repo :
-https://github.com/Friends-of-Tracking-Data-FoTD/LaurieOnTracking
-Data can be found at: https://github.com/metrica-sports/sample-data
-
-@author: Gabin Rolland (@GabinRolland)
+Code uses sample from https://github.com/Friends-of-Tracking-Data-FoTD/LaurieOnTracking
 """
 
 import numpy as np

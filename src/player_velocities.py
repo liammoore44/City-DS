@@ -1,9 +1,6 @@
 
 """
-Created on Mon Apr  6 14:52:19 2020
-Module for measuring player velocities, smoothed using a Savitzky-Golay filter, with Metrica tracking data.
-Data can be found at: https://github.com/metrica-sports/sample-data
-@author: Laurie Shaw (@EightyFivePoint)
+Code uses sample from https://github.com/Friends-of-Tracking-Data-FoTD/LaurieOnTracking
 """
 import numpy as np
 import scipy.signal as signal
