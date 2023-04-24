@@ -125,7 +125,7 @@ def plot_pitch(figax=None, field_dimen=(106.0, 68.0), field_color='green', linew
     return (fig, ax)
 
 
-def plot_frame(hometeam, awayteam, figax=None, team_colors=('r', 'b'), field_dimen=(106.0, 68.0), 
+def plot_frame(hometeam, awayteam, figax=None, team_colors=('b', 'r'), field_dimen=(106.0, 68.0), 
                include_player_velocities=False, PlayerMarkerSize=10, PlayerAlpha=0.7, annotate=False, dpi=100):
     """ plot_frame( hometeam, awayteam )
     
@@ -172,17 +172,15 @@ def plot_frame(hometeam, awayteam, figax=None, team_colors=('r', 'b'), field_dim
 def plot_frame_players(frame, tracking_home, tracking_away, attacking_team, grid, alpha=0.7, include_player_velocities=True,
                        annotate=True, field_dimen=(106., 68.,), n_grid_cells_x=50, fig=None, ax=None):
 
-    if fig is not None:
-        fig, ax = fig, ax
-    else:
-        fig, ax = plot_pitch(field_color='white', field_dimen=field_dimen)
+    # if ax is None:
+    #     fig, ax = plot_pitch(field_color='white', field_dimen=field_dimen)
 
     # plot pitch control surface
     if attacking_team == 'Home':
-        cmap = 'Reds'
-    else:
         cmap = 'Blues'
-
+    else:
+        cmap = 'Reds'
+    plot_pitch(figax=(fig, ax), field_color='white', field_dimen=field_dimen)
     plot_frame(tracking_home.loc[frame], tracking_away.loc[frame], figax=(fig, ax), PlayerAlpha=alpha,
                include_player_velocities=include_player_velocities, annotate=annotate)
     
@@ -313,9 +311,9 @@ def plot_transition_proba_for_frame(frame, tracking_home, tracking_away, attacki
 
     # plot pitch control surface
     if attacking_team == 'Home':
-        cmap = 'Reds'
-    else:
         cmap = 'Blues'
+    else:
+        cmap = 'Reds'
 
     im = ax.imshow(np.flipud(T), extent=(np.amin(xgrid), np.amax(xgrid), np.amin(ygrid), np.amax(ygrid)),interpolation='hanning',vmin=0.0,cmap=cmap)
     cbar = fig.colorbar(im)
@@ -389,9 +387,9 @@ def plot_relevant_pitch_for_frame(frame, tracking_home, tracking_away, attacking
 
     # plot relevant pitch control surface
     if attacking_team == 'Home':
-        cmap = 'Reds'
-    else:
         cmap = 'Blues'
+    else:
+        cmap = 'Reds'
     im = ax.imshow(np.flipud(rel_PPCF), extent=(np.amin(xgrid), np.amax(xgrid), np.amin(ygrid), np.amax(ygrid)), interpolation='hanning',
                    vmin=0.0, cmap=cmap, alpha=1)
     # Add colorbar
@@ -436,41 +434,45 @@ def generate_off_ball_scoring_opportunity_for_frame(frame, tracking_home, tracki
     return (xT*rel_PPCF, xgrid, ygrid)
 
 
-def plot_scoring_opp_for_frame(frame, tracking_home, tracking_away, attacking_team, params,
-                               alpha=0.7, include_player_velocities=True, annotate=True, field_dimen=(106., 68.,), n_grid_cells_x=50):
+# def plot_scoring_opp_for_frame(frame, tracking_home, tracking_away, attacking_team, params,
+#                                alpha=0.7, include_player_velocities=True, annotate=True, field_dimen=(106., 68.,), n_grid_cells_x=50):
     
-    fig, ax = plot_pitch(field_color='white', field_dimen=field_dimen)
-    plot_frame(tracking_home.loc[frame], tracking_away.loc[frame], figax=(fig, ax), PlayerAlpha=alpha,
-               include_player_velocities=include_player_velocities, annotate=annotate)
+#     # fig, ax = plot_pitch(field_color='white', field_dimen=field_dimen)
+#     plot_frame(tracking_home.loc[frame], tracking_away.loc[frame], figax=(fig, ax), PlayerAlpha=alpha,
+#                include_player_velocities=include_player_velocities, annotate=annotate)
     
-    off_scoring, xgrid, ygrid = generate_off_ball_scoring_opportunity_for_frame(frame, tracking_home, tracking_away, attacking_team, params,
-                                                                                field_dimen=field_dimen, n_grid_cells_x=n_grid_cells_x)
+#     off_scoring, xgrid, ygrid = generate_off_ball_scoring_opportunity_for_frame(frame, tracking_home, tracking_away, attacking_team, params,
+#                                                                                 field_dimen=field_dimen, n_grid_cells_x=n_grid_cells_x)
 
-    # plot pitch control surface
-    if attacking_team == 'Home':
-        cmap = 'Reds'
-    else:
-        cmap = 'Blues'
+#     # plot pitch control surface
+#     if attacking_team == 'Home':
+#         cmap = 'Blues'
+#     else:
+#         cmap = 'Reds'
 
-    im = ax.imshow(np.flipud(off_scoring), extent=(np.amin(xgrid), np.amax(xgrid), np.amin(ygrid), np.amax(ygrid)),interpolation='hanning',
-                   vmin=0.0, vmax=np.max(off_scoring), cmap=cmap)
-    # Add colorbar
-    cbar = fig.colorbar(im)
-    cbar.set_label('OBSO')
+#     im = ax.imshow(np.flipud(off_scoring), extent=(np.amin(xgrid), np.amax(xgrid), np.amin(ygrid), np.amax(ygrid)),interpolation='hanning',
+#                    vmin=0.0, vmax=np.max(off_scoring), cmap=cmap)
+#     # Add colorbar
+#     cbar = fig.colorbar(im)
+#     cbar.set_label('OBSO')
 
-    print('off ball expected threat: '+str(round(np.sum(off_scoring)*100, 1)) + "%")
+#     print('off ball expected threat: '+str(round(np.sum(off_scoring)*100, 1)) + "%")
     
-    return (fig, ax)
+#     return (fig, ax)
 
 
 def animate(i, fig, ax, df_, tracking_home, tracking_away):
     ax.clear()
+    # fig1, ax = plot_pitch(field_color='white', field_dimen=(106., 68.,))
     # Get the point from the points list at index i
     row = df_.iloc[i]
     # Plot that point using the x and y coordinates
-    plot_frame_players(row.frame, tracking_home, tracking_away, row.attacking_team, row.conrol_matrix, fig=fig, ax=ax)
-    return ax
+    plot_frame_players(row.frame, tracking_home, tracking_away, row.attacking_team, row.conrol_matrix, ax=ax)
+    # return fig, ax
 
 def animate_frames(fig, ax, df_, tracking_home, tracking_away):
     FuncAnimation(fig, animate, frames=len(df_),
                 interval=500, repeat=False, fargs=(fig, ax, df_, tracking_home, tracking_away))
+    
+def highlight_impact(s):
+    return ['background-color: lightgreen']*len(s) if s.high_impact else ['background-color: white']*len(s)

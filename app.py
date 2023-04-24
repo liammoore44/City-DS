@@ -175,19 +175,31 @@ st.write("#")
 
 st.subheader('High Impact Plays')
 
+use_df = full_merged.iloc[period[0]:period[1]-1].copy()
 sildercol1, slidercol2 = st.columns(2)
 with sildercol1:
-    change_thresh = st.slider("Threat Change (%):", min_value=1, max_value=100, value=30)
+    change_thresh = st.slider("OBSO Change (%):", min_value=1, max_value=100, value=30)
 with slidercol2:
-    second_thresh = st.slider("Time:", min_value=1, max_value=20, value=3)
+    second_thresh = st.slider("Time (seconds):", min_value=1, max_value=20, value=5)
 
-impact_dfs, high_impact_plays = find_obso_swings(full_merged, second_thresh, change_thresh, half, team)
+impact_dfs, high_impact_plays = find_obso_swings(use_df, second_thresh, change_thresh, half, team)
 
-st.write('Key Actions')
-st.dataframe(high_impact_plays[['minute', 'second', 'player_name', 'team_name', 'type_name',  'high_impact', 'OBSO (%)']])
-fig, ax = viz.plot_pitch(field_color='white', field_dimen=(106., 68.,)) 
-ani = FuncAnimation(fig, viz.animate, frames=len(impact_dfs[0]),
-                interval=5, repeat=False, fargs=(fig, ax, impact_dfs[0], tracking_home, tracking_away))
-components.html(ani.to_jshtml(fps=2, default_mode='once'), width=1600, height=1000)
+if len(impact_dfs)==0:
+        st.error('No phases meet the current criteria.', icon="🚨")
+else:
+    selected_df = impact_dfs[1]
+    selected_df.attacking_team = np.where(selected_df.attacking_team=='home', 'Home', 'Away')
+    phasecol1, phasecol2 = st.columns(2)
+    with phasecol1:
+        st.write('Key Phases')
+        st.dataframe(high_impact_plays[['minute', 'second', 'team_name', 'type_name', 'OBSO (%)']])
+    with phasecol2:
+        st.write('Phase Actions')
+        st.dataframe(selected_df[['minute', 'second', 'player_name', 'team_name', 'type_name',  'high_impact', 'OBSO (%)']].style.apply(viz.highlight_impact, axis=1))
 
+    fig, ax = viz.plot_pitch(field_color='white', field_dimen=(106., 68.,)) 
+    ani = FuncAnimation(fig, viz.animate, frames=len(selected_df),
+                    interval=5, repeat=False, fargs=(fig, ax, selected_df, tracking_home, tracking_away))
 
+    st.write(f'{high_impact_plays.player_name.values[0]} {high_impact_plays.type_name.values[0]} - {high_impact_plays.minute.values[0]}:{high_impact_plays.second.values[0]}')
+    components.html(ani.to_jshtml(fps=1, default_mode='once'), width=1800, height=1000)

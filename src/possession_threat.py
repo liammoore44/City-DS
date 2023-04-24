@@ -19,9 +19,9 @@ def find_obso_swings(df, second, threshold, half, team):
     impact_df['next_time_diff'] = impact_df.time.shift(-1) - impact_df.time
     impact_df = impact_df.loc[(impact_df.next_time_diff > 3) & (impact_df.next_time_diff > 0)]
     result = []
-    for _, row in impact_df.iterrows():
+    for i, row in impact_df.iterrows():
         res = df.loc[(df.period_id_x==row.period_id_x) & (df.time >= (row.time - (second*2.5))) & (df.time <= (row.time + (second*2.5)))]
-        res['OBSO (%)'] = res.obso * 100
+        res['OBSO (%)'] = round(res.obso * 100, 2)
         result.append(res)
-    impact_df['OBSO (%)'] = impact_df.obso * 100
+    impact_df['OBSO (%)'] = round(impact_df.obso * 100, 2)
     return result, impact_df
