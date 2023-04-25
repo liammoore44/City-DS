@@ -174,14 +174,14 @@ st.write("#")
 
 st.subheader('High Impact Plays')
 
-use_df = full_merged.iloc[period[0]:period[1]-1].copy()
+
 sildercol1, slidercol2 = st.columns(2)
 with sildercol1:
     change_thresh = st.slider("OBSO Change (%):", min_value=1, max_value=100, value=20)
 with slidercol2:
     second_thresh = st.slider("Time (seconds):", min_value=1, max_value=20, value=10)
 
-impact_dfs, high_impact_plays = find_obso_swings(use_df, second_thresh, change_thresh, half, team)
+impact_dfs, high_impact_plays = find_obso_swings(full_merged, second_thresh, change_thresh, half, team)
 
 if len(impact_dfs)==0:
         st.error('No phases meet the current criteria.', icon="🚨")
