@@ -177,9 +177,9 @@ st.subheader('High Impact Plays')
 
 sildercol1, slidercol2 = st.columns(2)
 with sildercol1:
-    change_thresh = st.slider("OBSO Change (%):", min_value=1, max_value=100, value=20)
+    change_thresh = st.slider("OBSO Change (%):", min_value=1, max_value=100, value=20, help="This is the percentage change threshold for scoring opportunity in the selected time period. Higher values will display less phases of play, but more high quality opportunities.")
 with slidercol2:
-    second_thresh = st.slider("Time (seconds):", min_value=1, max_value=20, value=10)
+    second_thresh = st.slider("Time (seconds):", min_value=1, max_value=20, value=10, help="This is the time period for which we want to see the opportunity change. Higher values will display more, longer phases of play. Lower values will favour plays where the opportunity increase happens rapidly.")
 
 impact_dfs, high_impact_plays = find_obso_swings(full_merged, second_thresh, change_thresh, half, team)
 
