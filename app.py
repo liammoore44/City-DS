@@ -177,7 +177,7 @@ st.subheader('High Impact Plays')
 
 sildercol1, slidercol2 = st.columns(2)
 with sildercol1:
-    change_thresh = st.slider("OBSO Change (%):", min_value=1, max_value=100, value=20, help="This is the percentage change threshold for scoring opportunity in the selected time period. Higher values will display less phases of play, but more high quality opportunities.")
+    change_thresh = st.slider("OBSO Change (%):", min_value=1, max_value=100, value=30, help="This is the percentage change threshold for scoring opportunity in the selected time period. Higher values will display less phases of play, but more high quality opportunities.")
 with slidercol2:
     second_thresh = st.slider("Time (seconds):", min_value=1, max_value=20, value=10, help="This is the time period for which we want to see the opportunity change. Higher values will display more, longer phases of play. Lower values will favour plays where the opportunity increase happens rapidly.")
 
@@ -191,10 +191,18 @@ else:
     phasecol1, phasecol2 = st.columns(2)
     with phasecol1:
         st.write('Key Phases')
-        st.dataframe(high_impact_plays[['minute', 'second', 'team_name', 'type_name', 'OBSO (%)']])
+        st.dataframe(high_impact_plays[['minute', 'second', 'team_name', 'type_name', 'OBSO (%)']].rename(columns={'minute': 'Minute', 
+                                                                                                                   'second': 'Second', 
+                                                                                                                   'team_name':'Team', 
+                                                                                                                   'type_name': 'Action Type'}))
     with phasecol2:
         st.write('Phase Actions')
-        st.dataframe(selected_df[['minute', 'second', 'player_name', 'team_name', 'type_name',  'high_impact', 'OBSO (%)']].style.apply(viz.highlight_impact, axis=1))
+        st.dataframe(selected_df[['minute', 'second', 'player_name', 'team_name', 'type_name',  'high_impact', 'OBSO (%)']].rename(columns={'minute': 'Minute', 
+                                                                                                                                            'player_name': 'Player',
+                                                                                                                                            'high_imapct': 'High Impact',
+                                                                                                                                            'second': 'Second', 
+                                                                                                                                            'team_name':'Team', 
+                                                                                                                                            'type_name': 'Action Type'}).style.apply(viz.highlight_impact, axis=1))
 
     fig, ax = viz.plot_pitch(field_color='white', field_dimen=(106., 68.,)) 
     ani = FuncAnimation(fig, viz.animate, frames=len(selected_df),
