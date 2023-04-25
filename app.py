@@ -79,7 +79,7 @@ with col1:
     placeholder_clusters = st.empty()
 
     h1 = full_merged[(full_merged.period_id_x == half) & (full_merged.attacking_team == team)]
-
+    period = st.slider("Threat by time:", min_value=1, max_value=h1.shape[0], value=(0, h1.shape[0]))
     if (period[1] - period[0] < 6):
         st.error('Please select a minimum range of 6 events', icon="🚨")
     else:
